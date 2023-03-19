@@ -1,63 +1,55 @@
-import React, { useState, useEffect } from "react";
-import "../styles/App.css";
+import React, { useState } from 'react'
+import '../styles/App.css';
 
-function App() {
+const App = () => {
+
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [ascending, setAscending] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [sortAscending, setSortAscending] = useState(true);  
 
-  useEffect(() => {
-    setLoading(true);
-    fetch("https://content.newtonschool.co/v1/pr/main/users")
-      .then((response) => response.json())
-      .then((data) => {
-        setUsers(data);
-        setLoading(false);
-      });
-  }, []);
-
-  const fetchData = () => {
-    useEffect();
+  const fetchData = async () => {
+    setIsLoading(true);
+    const response = await fetch('https://content.newtonschool.co/v1/pr/main/users');
+    const data = await response.json();
+    setIsLoading(false);
+    setUsers(data);
   };
 
   const handleSort = () => {
-    setUsers(
-      [...users].sort((a, b) => {
-        if (ascending) {
-          return a.name.length - b.name.length;
-        } else {
-          return b.name.length - a.name.length;
-        }
-      })
-    );
-    setAscending(!ascending);
+    const sortedUsers = [...users].sort((a, b) => {
+      if (sortAscending) {
+        return a.name.length - b.name.length;
+      } else {
+        return b.name.length - a.name.length;
+      }
+    });
+    setUsers(sortedUsers);
+    setSortAscending(!sortAscending);
   };
 
   return (
-    <div className="App">
-      <h1>Users</h1>
-      <button className="fetch-data-btn" onClick={fetchData}>
-        Fetch User Data
+    <div id="main">
+      <h2>User List</h2>
+      <button className="fetch-data-btn" onClick={fetchData}>Fetch User Data</button>
+      <button className="sort-btn" onClick={handleSort}>
+        {sortAscending ? "Sort by name length (ascending)" : "Sort by name length (descending)"}
       </button>
-      <button onClick={handleSort} className="sort-btn">
-        Sort by name length ({ascending ? "ascending" : "descending"})
-      </button>
-      <button onClick={() => setUsers([])}>Clear</button>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="users">
-          {users.map((user) => (
-            <div key={user.id} className="user">
-              <div className="id-section">{user.id}</div>
-              <p className="name">{user.name}</p>
-              <p className="email">{user.email}</p>
-            </div>
+      {isLoading && <p>Loading...</p>}
+      {!isLoading && (
+        <div className='users-section'>
+          {users.map(user => (
+            <li key={user.id}>
+              <section className='id-section'>{user.id}</section>
+              <section className='name-email-section'>
+                <p className='name'>Name: {user.name}</p>
+                <p className='email'>Email: {user.email}</p>
+              </section>
+            </li>
           ))}
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export default App;
